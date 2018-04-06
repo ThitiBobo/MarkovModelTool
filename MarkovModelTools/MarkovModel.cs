@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace MarkovModelTools
 {
-    public class Class1
+    public class MarkovModel
     {
+        private MarkovMatrix transitionMatrix;
+        private uint size;
     }
 }
