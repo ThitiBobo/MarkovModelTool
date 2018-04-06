@@ -28,9 +28,12 @@ namespace MarkovModelTools
         #endregion
 
         #region GETSET
+        /// <summary>
+        /// obtient une copie de la matrice
+        /// </summary>
         public double[,] Matrix {
             get { return (double[,])_matrix.Clone(); }
-            set
+            private set
             {
                 if (value == null)
                     throw new ArgumentNullException();
@@ -43,9 +46,12 @@ namespace MarkovModelTools
                 _matrix = value;
             }
         }
+        /// <summary>
+        /// obtient une copie du dictionnaire des etats
+        /// </summary>
         public Dictionary<int,string> States {
             get { return new Dictionary<int, string>(_states); }
-            set
+            private set
             {
                 if (value == null)
                     throw new ArgumentNullException();
@@ -57,6 +63,14 @@ namespace MarkovModelTools
         #endregion
 
         #region CONTRUCTORS
+
+        /// <summary>
+        /// Initialise une nouvelle instance de la class MarkovMatrix avec une matrice de taille (row, col)
+        /// </summary>
+        /// <param name="row">nombre de lignes</param>
+        /// <param name="col">nombre de colonnes</param>
+        /// <param name="matrix">matrice</param>
+        /// <param name="states">nom des états</param>
         public MarkovMatrix(uint row, uint col, double[,] matrix, Dictionary<int,string> states)
         {
             _row = row;
@@ -64,16 +78,29 @@ namespace MarkovModelTools
             Matrix = matrix;
             States = states;
         }
-
+        /// <summary>
+        /// Initialise une nouvelle instance de la class MarkovMatrix avec une matrice de taille (row, col)
+        /// </summary>
+        /// <param name="row">nombre de lignes</param>
+        /// <param name="col">nombre de colonnes</param>
+        /// <param name="states">nom des états</param>
         public MarkovMatrix(uint row, uint col, Dictionary<int,string> states) :
             this(row, col, EmptyMatrix(row, col), states)
         {}
-
+        /// <summary>
+        /// Initialise une nouvelle instance de la class MarkovMatrix avec une matrice de taille (row, col)
+        /// </summary>
+        /// <param name="row">nombre de lignes</param>
+        /// <param name="col">nombre de colonnes</param>
         public MarkovMatrix(uint row, uint col) : 
             this(row, col, EmptyMatrix(row,col), EmptyStates(col))
         {}
         #endregion
 
+        /// <summary>
+        /// retourne l'instance sous forme de string 
+        /// </summary>
+        /// <returns>string</returns>
         public override String ToString()
         {
             StringBuilder result = new StringBuilder();
@@ -90,6 +117,9 @@ namespace MarkovModelTools
             return result.ToString();
         }
 
+
+
+        #region STATIC METHODES
         /// <summary>
         /// méthode qui génére une matrice ou la somme de chaque élèments d'une ligne
         /// vaut 1
@@ -97,8 +127,6 @@ namespace MarkovModelTools
         /// <param name="row">nombre de lignes de la matrice</param>
         /// <param name="col">nombre de colonnes de la matrice</param>
         /// <returns>retuourne une matrice de taille (row, col)</returns>
-
-        #region STATIC METHODES
         public static double[,] EmptyMatrix(uint row, uint col)
         {
             double[,] matrix = new double[row, col];
@@ -114,15 +142,24 @@ namespace MarkovModelTools
             }
             return matrix;
         }
-
-        public static Dictionary<int,string> EmptyStates(uint col)
+        /// <summary>
+        /// renvoie une nouvelles instances Dictionary
+        /// </summary>
+        /// <param name="col">nombre d'élément du Dictionaire</param>
+        /// <returns></returns>
+        public static Dictionary<int,string> EmptyStates(uint size)
         {
             Dictionary<int,string> states = new Dictionary<int, string>();
-            for (int i = 0; i < col; i++)
+            for (int i = 0; i < size; i++)
                 states.Add(i, Convert.ToChar(65 + i).ToString());
             return states;
         }
 
+        /// <summary>
+        /// Vérifie si chaque éléments de la matrice sont compris entre 0 et 1
+        /// </summary>
+        /// <param name="matrix">matrice à vérifier</param>
+        /// <returns>retourne true si la matrice respecte la règle sinon false</returns>
         public static Boolean CheckElements(double[,] matrix)
         {
             System.Collections.IEnumerator enumerator = matrix.GetEnumerator();
@@ -133,7 +170,11 @@ namespace MarkovModelTools
             }
             return true;
         }
-
+        /// <summary>
+        /// Vérifie si la somme de chaque éléments d'une ligne de la matrice vaut 1
+        /// </summary>
+        /// <param name="matrix">matrice à vérifier</param>
+        /// <returns>retourne true si les lignes de la matrice respectent la règle sinon false</returns>
         public static Boolean CheckRows(double[,] matrix)
         {
             float result;
@@ -143,7 +184,6 @@ namespace MarkovModelTools
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
                     result += (float)matrix[i, j];
-
                 }
                 if ((int)result != 1)
                     return false;

@@ -14,8 +14,9 @@ namespace MarkovModelTest
         {
             Console.WriteLine(new MarkovMatrix(2, 2));
 
+            
             string[] cc = { "g", "g", "g", "g", "g", "g" };
-            Console.WriteLine(new MarkovMatrix(6, 6, MarkovMatrix.EmptyStates(6)));
+            Console.WriteLine(new MarkovMatrix(5, 5 ));
             Console.ReadLine();
         }
     }
