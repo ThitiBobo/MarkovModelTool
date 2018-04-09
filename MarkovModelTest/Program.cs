@@ -24,14 +24,15 @@ namespace MarkovModelTest
             state.Add(2, "C");
 
 
-            MarkovModel cc = new MarkovModel(3, tab, state);
+            MarkovChain cc = new MarkovChain(3, tab, state,"B");
             Console.WriteLine(cc);
             string stateq = "A";
             for (int i = 0; i < 100; i++)
             {
-                stateq = cc.NextState(stateq);
+                stateq = cc.NextState();
                 Console.WriteLine(stateq);
             }
+            Console.WriteLine(cc);
             Console.ReadLine();
         }
     }

@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace MarkovModelTools
 {
+    /// <summary>
+    /// Représente une matrice 
+    /// </summary>
     public class MarkovMatrix 
     {
         #region STATIC MENBERS
@@ -18,20 +21,20 @@ namespace MarkovModelTools
         /// <summary>
         /// nombre de lignes de la matrice
         /// </summary>
-        private uint _row;
+        protected uint _row;
         /// <summary>
         /// nombre de colonnes de la matrice
         /// </summary>
-        private uint _col;
+        protected uint _col;
         /// <summary>
         /// matrice de dimension (row, col) ou chaque valeurs est stokée 
         /// à l'emplacement (i,j) dans la matrice 
         /// </summary>
-        private double[,] _matrix;
+        protected double[,] _matrix;
         /// <summary>
         /// collection contenant pour chaques états, la ligne correspondant dans la mtrice et son nom  
         /// </summary>
-        private Dictionary<int,string> _states;
+        protected Dictionary<int,string> _states;
         #endregion
 
         #region GETSET
@@ -90,6 +93,15 @@ namespace MarkovModelTools
         /// </summary>
         /// <param name="row">nombre de lignes</param>
         /// <param name="col">nombre de colonnes</param>
+        /// <param name="matrix">matrice</param>
+        public MarkovMatrix(uint row, uint col, double[,] matrix):
+            this(row, col, matrix, EmptyStates(col))
+        {}
+        /// <summary>
+        /// Initialise une nouvelle instance de la class MarkovMatrix avec une matrice de taille (row, col)
+        /// </summary>
+        /// <param name="row">nombre de lignes</param>
+        /// <param name="col">nombre de colonnes</param>
         /// <param name="states">nom des états</param>
         public MarkovMatrix(uint row, uint col, Dictionary<int,string> states) :
             this(row, col, EmptyMatrix(row, col), states)
@@ -117,7 +129,6 @@ namespace MarkovModelTools
                 result.Append(_states[i] + " [ ");
                 for (int j = 0; j < _col; j++)
                 {
-                    //result.Append(string.Format("{0:d2}", _matrix[i, j]));
                     result.AppendFormat("{0,10}", _matrix[i, j].ToString("0.000000"));
                 }
                 result.AppendLine("]");
@@ -125,6 +136,11 @@ namespace MarkovModelTools
             return result.ToString();
         }
 
+        /// <summary>
+        /// génére le prochain état à partir de l'état actuelle
+        /// </summary>
+        /// <param name="state">état de départ</param>
+        /// <returns>retourne la valeur de l'état généré</returns>
         public string NextState(string state)
         {
             int i = 0;
@@ -137,6 +153,11 @@ namespace MarkovModelTools
             return _states.FirstOrDefault(x => x.Key == i).Value;
         }
 
+        /// <summary>
+        /// génére le prochain état à partir de l'état actuelle
+        /// </summary>
+        /// <param name="key">l'id de l'état de départ</param>
+        /// <returns>retourne la valeur de l'état généré</returns>
         public string NextState(int key)
         {
             int i = 0;

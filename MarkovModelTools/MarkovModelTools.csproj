@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HiddenMarkovModel.cs" />
-    <Compile Include="MarkovModel.cs" />
+    <Compile Include="MarkovChain.cs" />
     <Compile Include="MarkovMatrix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

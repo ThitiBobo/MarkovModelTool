@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MarkovModelTools
 {
-    public class HiddenMarkovModel : MarkovModel
+    public class HiddenMarkovModel : MarkovChain
     {
         private IList<MarkovMatrix> _emissionMatrix;
 
