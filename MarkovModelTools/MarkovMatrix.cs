@@ -5,9 +5,16 @@ using System.Collections.Generic;
 
 namespace MarkovModelTools
 {
-    public class MarkovMatrix
+    public class MarkovMatrix 
     {
-        #region ATTRIBUTS
+        #region STATIC MENBERS
+        /// <summary>
+        /// générateur de nombre aléatoire
+        /// </summary>
+        private static Random RAND = new Random();
+        #endregion
+
+        #region MENBERS
         /// <summary>
         /// nombre de lignes de la matrice
         /// </summary>
@@ -110,13 +117,38 @@ namespace MarkovModelTools
                 result.Append(_states[i] + " [ ");
                 for (int j = 0; j < _col; j++)
                 {
-                    result.Append(_matrix[i, j] + " ");
+                    //result.Append(string.Format("{0:d2}", _matrix[i, j]));
+                    result.AppendFormat("{0,10}", _matrix[i, j].ToString("0.000000"));
                 }
                 result.AppendLine("]");
             }
             return result.ToString();
         }
 
+        public string NextState(string state)
+        {
+            int i = 0;
+            double number = RAND.NextDouble();
+            double intervalSup = _matrix[_states.FirstOrDefault(x => x.Value == state).Key, i];
+            while (intervalSup <= number) {
+                i++;
+                intervalSup += _matrix[_states.FirstOrDefault(x => x.Value == state).Key, i];     
+            }
+            return _states.FirstOrDefault(x => x.Key == i).Value;
+        }
+
+        public string NextState(int key)
+        {
+            int i = 0;
+            double number = RAND.NextDouble();
+            double intervalSup = _matrix[key, i];
+            while (intervalSup <= number)
+            {
+                i++;
+                intervalSup += _matrix[key, i];
+            }
+            return _states.FirstOrDefault(x => x.Key == i).Value;
+        }
 
 
         #region STATIC METHODES
@@ -129,16 +161,19 @@ namespace MarkovModelTools
         /// <returns>retuourne une matrice de taille (row, col)</returns>
         public static double[,] EmptyMatrix(uint row, uint col)
         {
+            int colSelect = RAND.Next((int)col);
             double[,] matrix = new double[row, col];
             if (row * col != 0)
             {
                 for (int i = 0; i < row; i++)
                 {
+                    //matrix[i, colSelect] += RAND.NextDouble();
                     for (int j = 0; j < col; j++)
                     {
-                        matrix[i, j] = 1 / (double)col;
+                        matrix[i, j] = 1.0d / col;
                     }
                 }
+
             }
             return matrix;
         }
@@ -177,15 +212,15 @@ namespace MarkovModelTools
         /// <returns>retourne true si les lignes de la matrice respectent la règle sinon false</returns>
         public static Boolean CheckRows(double[,] matrix)
         {
-            float result;
+            double result;
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 result = 0;
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    result += (float)matrix[i, j];
+                    result += (double)matrix[i, j];
                 }
-                if ((int)result != 1)
+                if (result != 1.0d)
                     return false;
             }
             return true;

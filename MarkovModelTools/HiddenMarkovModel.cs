@@ -9,5 +9,11 @@ namespace MarkovModelTools
     public class HiddenMarkovModel : MarkovModel
     {
         private IList<MarkovMatrix> _emissionMatrix;
+
+        public HiddenMarkovModel():
+            base(5)
+        {
+                
+        }
     }
 }

@@ -12,11 +12,26 @@ namespace MarkovModelTest
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(new MarkovMatrix(2, 2));
+            double[,] tab = {
+                {0.1,0.9,0},
+                {0.5,0,0.5},
+                {0,0.7,0.3}
+            };
 
-            
-            string[] cc = { "g", "g", "g", "g", "g", "g" };
-            Console.WriteLine(new MarkovMatrix(5, 5 ));
+            Dictionary<int, string> state = new Dictionary<int, string>();
+            state.Add(0, "A");
+            state.Add(1, "B");
+            state.Add(2, "C");
+
+
+            MarkovModel cc = new MarkovModel(3, tab, state);
+            Console.WriteLine(cc);
+            string stateq = "A";
+            for (int i = 0; i < 100; i++)
+            {
+                stateq = cc.NextState(stateq);
+                Console.WriteLine(stateq);
+            }
             Console.ReadLine();
         }
     }
