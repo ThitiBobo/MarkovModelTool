@@ -153,6 +153,18 @@ namespace MarkovModelTools
         public MarkovMatrix(uint row, uint col) : 
             this(row, col, EmptyMatrix(row,col), EmptyStates(row), EmptyStates(col))
         {}
+
+        public MarkovMatrix(MarkovMatrix matrix)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+            _row = matrix.Row;
+            _col = matrix.Col;
+            Matrix = matrix.Matrix;
+            RowStates = matrix.RowStates;
+            ColStates = matrix.ColStates;
+
+        }
         #endregion
 
         /// <summary>
@@ -229,7 +241,6 @@ namespace MarkovModelTools
             }
             return _colStates.FirstOrDefault(x => x.Key == i).Value;
         }
-
 
         #region STATIC METHODES
         /// <summary>
