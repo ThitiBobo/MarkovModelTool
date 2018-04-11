@@ -11,8 +11,10 @@ namespace Sample1
         static void Main(string[] args)
         {
 
-            MarkovChain mm = new MarkovChain(5);
+            MarkovChain mm = new MarkovChain(8);
             Console.WriteLine(mm);
+
+
             Console.Read();
             
         }

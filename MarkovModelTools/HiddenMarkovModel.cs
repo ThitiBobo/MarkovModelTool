@@ -1,4 +1,4 @@
-﻿/*
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,17 +27,8 @@ namespace MarkovModelTools
             }
         }
 
-        public HiddenMarkovModel(
-            uint size,
-            double[,] matrix,
-            Dictionary<int, string> states, 
-            string startState, 
-            List<MarkovMatrix> emissionMatrix
-            ) : base(
-                size,
-                matrix,
-                states,
-                startState)
+        public HiddenMarkovModel(uint size, MarkovMatrix matrix, List<MarkovMatrix> emissionMatrix) : 
+            base(size,matrix)
         {
             EmissionMatrix = emissionMatrix;
         }
@@ -45,24 +36,17 @@ namespace MarkovModelTools
         public override string ToString()
         {
             StringBuilder result = new StringBuilder();
-            result.AppendLine("MarkovModel (" + _row + "," + _col + ")");
+            result.AppendLine("HiddenMarkovModel (" + _size + "," + _size + ")");
             result.AppendLine("Etat de départ: " + StartState);
             result.AppendLine("Etat actuel: " + CurrentState);
-            for (int i = 0; i < _row; i++)
-            {
-                result.Append(_colStates[i] + " [ ");
-                for (int j = 0; j < _col; j++)
-                {
-                    result.AppendFormat("{0,10}", _matrix[i, j].ToString("0.000000"));
-                }
-                result.AppendLine("]");
-            }
+            result.AppendLine(GetStartProbToString());
+            result.AppendLine(GetTransitionMatrixToString());
             foreach (MarkovMatrix e in _emissionMatrix)
             {
-                result.AppendLine(e.ToString());
+                result.AppendLine(e.GetMatrixToString());
             }
+
             return result.ToString();
         }
     }
 }
-*/

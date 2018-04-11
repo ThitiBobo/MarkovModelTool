@@ -17,7 +17,7 @@ namespace MarkovModelTools
         /// <summary>
         /// matrice d'émission
         /// </summary>
-        protected MarkovMatrix _emissionMatrix;
+        protected MarkovMatrix _transitionMatrix;
         /// <summary>
         /// probabilité de départ
         /// </summary>
@@ -37,14 +37,14 @@ namespace MarkovModelTools
         /// modifie / obtient l'état courrant du model
         /// </summary>
         public string CurrentState {
-            get { return _emissionMatrix.RowStates.FirstOrDefault(x => x.Key == _currentState).Value; } 
-            private set { _currentState = (uint)_emissionMatrix.RowStates.FirstOrDefault(x => x.Value == value).Key; }               
+            get { return _transitionMatrix.RowStates.FirstOrDefault(x => x.Key == _currentState).Value; } 
+            private set { _currentState = (uint)_transitionMatrix.RowStates.FirstOrDefault(x => x.Value == value).Key; }               
         }
 
         public string StartState
         {
             get { return _startProb.ColStates.FirstOrDefault(x => x.Key == _startState).Value ; }
-            private set { _startState = (uint)_emissionMatrix.RowStates.FirstOrDefault(x => x.Value == value).Key; }
+            private set { _startState = (uint)_transitionMatrix.RowStates.FirstOrDefault(x => x.Value == value).Key; }
         }
 
         public int Size
@@ -52,16 +52,16 @@ namespace MarkovModelTools
             get { return (int)_size; }
         }
 
-        public MarkovMatrix EmissionMatrix
+        public MarkovMatrix TransitionMatrix
         {
-            get { return new MarkovMatrix(_emissionMatrix); }
+            get { return new MarkovMatrix(_transitionMatrix); }
             set
             {
                 if (value == null)
                     throw new ArgumentNullException();
                 if (value.Col != _size || value.Row != _size)
                     throw new ArgumentException();
-                _emissionMatrix = value;
+                _transitionMatrix = value;
             }
         }
 
@@ -72,7 +72,7 @@ namespace MarkovModelTools
             {
                 if (value == null)
                     throw new ArgumentNullException();
-                if (value.Col != _emissionMatrix.Row)
+                if (value.Col != _transitionMatrix.Row)
                     throw new ArgumentException();
                 if (!(value.Row == 1))
                     throw new ArgumentException();
@@ -86,7 +86,7 @@ namespace MarkovModelTools
         public MarkovChain(uint size, MarkovMatrix matrix, MarkovMatrix startProb)
         {
             _size = size;
-            EmissionMatrix = matrix;
+            TransitionMatrix = matrix;
             StartProb = startProb;
             InitStartState();
         }
@@ -105,7 +105,7 @@ namespace MarkovModelTools
             if (markovChain == null)
                 throw new ArgumentNullException();
             _size = (uint)markovChain.Size;
-            EmissionMatrix = markovChain.EmissionMatrix;
+            TransitionMatrix = markovChain.TransitionMatrix;
             StartProb = markovChain.StartProb;
             StartState = markovChain.StartState;
             CurrentState = markovChain.CurrentState;
@@ -123,15 +123,7 @@ namespace MarkovModelTools
             result.AppendLine("Etat de départ: " + StartState);
             result.AppendLine("Etat actuel: " + CurrentState);
             result.AppendLine(GetStartProbToString());
-            for (int i = 0; i < _size; i++)
-            {
-                result.Append(_emissionMatrix.RowStates[i] + " [");
-                for (int j = 0; j < _size; j++)
-                {
-                    result.AppendFormat("{0,7}", _emissionMatrix.Matrix[i, j].ToString("0.000"));
-                }
-                result.AppendLine(" ]");
-            }
+            result.AppendLine(GetTransitionMatrixToString());
             return result.ToString();
         }
 
@@ -140,14 +132,14 @@ namespace MarkovModelTools
             return _startProb.GetMatrixToString();
         }
 
-        public string GetEmissionMatrixToString()
+        public string GetTransitionMatrixToString()
         {
-            return _emissionMatrix.GetMatrixToString();
+            return _transitionMatrix.GetMatrixToString();
         }
 
         public string NextState()
         {
-            CurrentState = _emissionMatrix.NextState((int)_currentState);
+            CurrentState = _transitionMatrix.NextState((int)_currentState);
             return CurrentState;
         }
         
