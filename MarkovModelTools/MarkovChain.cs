@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,7 @@ namespace MarkovModelTools
         /// </summary>
         protected uint _startState;
         #endregion
-
+        
         #region GETSET
         public string CurrentState {
             get { return _states.FirstOrDefault(x => x.Key == _currentState).Value; }
@@ -108,3 +109,4 @@ namespace MarkovModelTools
 
     }
 }
+*/

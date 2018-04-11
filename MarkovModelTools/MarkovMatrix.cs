@@ -6,7 +6,10 @@ using System.Collections.Generic;
 namespace MarkovModelTools
 {
     /// <summary>
-    /// Représente une matrice 
+    /// Représente une matrice de taille (n x m) de double respectant 
+    /// 2 règles sur 3 des matrice stochastique (ou matrice de markov): 
+    ///  - chaque élèments de la matrice est compris dans l'intervalle [0,1] 
+    ///  - la somme de tout les éléments d'une ligne est égal à 1
     /// </summary>
     public class MarkovMatrix 
     {
@@ -14,7 +17,7 @@ namespace MarkovModelTools
         /// <summary>
         /// générateur de nombre aléatoire
         /// </summary>
-        private static Random RAND = new Random();
+        private static Random RANDOM = new Random();
         #endregion
 
         #region MENBERS
@@ -27,21 +30,25 @@ namespace MarkovModelTools
         /// </summary>
         protected uint _col;
         /// <summary>
-        /// matrice de dimension (row, col) ou chaque valeurs est stokée 
+        /// matrice de dimension (row, col) ou chaque valeurs sont stokées
         /// à l'emplacement (i,j) dans la matrice 
         /// </summary>
         protected double[,] _matrix;
         /// <summary>
         /// collection contenant pour chaques états, la ligne correspondant dans la mtrice et son nom  
         /// </summary>
-        protected Dictionary<int,string> _states;
+        protected Dictionary<int, string> _rowStates;
+        /// <summary>
+        /// collection contenant pour chaques états, la colonne correspondant dans la mtrice et son nom  
+        /// </summary>
+        protected Dictionary<int, string> _colStates;
         #endregion
 
         #region GETSET
         /// <summary>
         /// obtient une copie de la matrice
         /// </summary>
-        public double[,] Matrix {
+        public double[,] Matrix{
             get { return (double[,])_matrix.Clone(); }
             private set
             {
@@ -52,23 +59,54 @@ namespace MarkovModelTools
                 if (!CheckElements(value))
                     throw new ArgumentException();
                 if (!CheckRows(value))
-                    throw new ArgumentException();
+                    Console.WriteLine("marche pas");
+                    //throw new ArgumentException();
                 _matrix = value;
             }
         }
         /// <summary>
-        /// obtient une copie du dictionnaire des etats
+        /// obtient une copie du dictionnaire ligne, nom
         /// </summary>
-        public Dictionary<int,string> States {
-            get { return new Dictionary<int, string>(_states); }
+        public Dictionary<int, string> RowStates {
+            get { return new Dictionary<int, string>(_rowStates); }
             private set
             {
                 if (value == null)
                     throw new ArgumentNullException();
-                if (value.Count != _col )
+                if (value.Count != _row )
                     throw new ArgumentException();
-                _states = value;
+                _rowStates = value;
             }
+        }
+        /// <summary>
+        /// obtient une copie du dictionnaire colonne, nom
+        /// </summary>
+        public Dictionary<int, string> ColStates
+        {
+            get { return new Dictionary<int, string>(_colStates); }
+            private set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+                if (value.Count != _col)
+                    throw new ArgumentException();
+                _colStates = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtient le nombre de ligne de la matrice
+        /// </summary>
+        public uint Row {
+            get { return _row; }
+        }
+
+        /// <summary>
+        /// Obtient le nombre de colonne de la matrice
+        /// </summary>
+        public uint Col
+        {
+            get { return _col; }
         }
         #endregion
 
@@ -81,12 +119,13 @@ namespace MarkovModelTools
         /// <param name="col">nombre de colonnes</param>
         /// <param name="matrix">matrice</param>
         /// <param name="states">nom des états</param>
-        public MarkovMatrix(uint row, uint col, double[,] matrix, Dictionary<int,string> states)
+        public MarkovMatrix(uint row, uint col, double[,] matrix, Dictionary<int,string> rowStates, Dictionary<int, string> colStates)
         {
             _row = row;
             _col = col;
             Matrix = matrix;
-            States = states;
+            RowStates = rowStates;
+            ColStates = colStates;
         }
         /// <summary>
         /// Initialise une nouvelle instance de la class MarkovMatrix avec une matrice de taille (row, col)
@@ -95,7 +134,7 @@ namespace MarkovModelTools
         /// <param name="col">nombre de colonnes</param>
         /// <param name="matrix">matrice</param>
         public MarkovMatrix(uint row, uint col, double[,] matrix):
-            this(row, col, matrix, EmptyStates(col))
+            this(row, col, matrix, EmptyStates(row), EmptyStates(col))
         {}
         /// <summary>
         /// Initialise une nouvelle instance de la class MarkovMatrix avec une matrice de taille (row, col)
@@ -103,8 +142,8 @@ namespace MarkovModelTools
         /// <param name="row">nombre de lignes</param>
         /// <param name="col">nombre de colonnes</param>
         /// <param name="states">nom des états</param>
-        public MarkovMatrix(uint row, uint col, Dictionary<int,string> states) :
-            this(row, col, EmptyMatrix(row, col), states)
+        public MarkovMatrix(uint row, uint col, Dictionary<int, string> rowStates, Dictionary<int, string> colStates) :
+            this(row, col, EmptyMatrix(row, col), rowStates, colStates)
         {}
         /// <summary>
         /// Initialise une nouvelle instance de la class MarkovMatrix avec une matrice de taille (row, col)
@@ -112,26 +151,42 @@ namespace MarkovModelTools
         /// <param name="row">nombre de lignes</param>
         /// <param name="col">nombre de colonnes</param>
         public MarkovMatrix(uint row, uint col) : 
-            this(row, col, EmptyMatrix(row,col), EmptyStates(col))
+            this(row, col, EmptyMatrix(row,col), EmptyStates(row), EmptyStates(col))
         {}
         #endregion
 
         /// <summary>
         /// retourne l'instance sous forme de string 
         /// </summary>
-        /// <returns>string</returns>
+        /// <returns>retourne une instance de string</returns>
         public override String ToString()
         {
             StringBuilder result = new StringBuilder();
             result.AppendLine("MarkovMatrix (" + _row  + "," + _col + ")");
+            result.AppendLine(GetMatrixToString());
+            return result.ToString();
+        }
+
+        /// <summary>
+        /// retourne la matrice sous forme de chaine de caractère
+        /// </summary>
+        /// <returns>retourne une instance de string</returns>
+        public string GetMatrixToString()
+        {
+            StringBuilder result = new StringBuilder();
+            for (int j = 0; j < _col; j++)
+            {
+                result.AppendFormat("{0,7}", _colStates[j]);
+            }
+            result.AppendLine();
             for (int i = 0; i < _row; i++)
             {
-                result.Append(_states[i] + " [ ");
+                result.Append(_rowStates[i] + " [");
                 for (int j = 0; j < _col; j++)
                 {
-                    result.AppendFormat("{0,10}", _matrix[i, j].ToString("0.000000"));
+                    result.AppendFormat("{0,7}", _matrix[i, j].ToString("0.000"));
                 }
-                result.AppendLine("]");
+                result.AppendLine(" ]");
             }
             return result.ToString();
         }
@@ -143,14 +198,16 @@ namespace MarkovModelTools
         /// <returns>retourne la valeur de l'état généré</returns>
         public string NextState(string state)
         {
+            if (!_rowStates.ContainsValue(state))
+                throw new ArgumentOutOfRangeException();
             int i = 0;
-            double number = RAND.NextDouble();
-            double intervalSup = _matrix[_states.FirstOrDefault(x => x.Value == state).Key, i];
+            double number = RANDOM.NextDouble();
+            double intervalSup = _matrix[_rowStates.FirstOrDefault(x => x.Value == state).Key, i];
             while (intervalSup <= number) {
                 i++;
-                intervalSup += _matrix[_states.FirstOrDefault(x => x.Value == state).Key, i];     
+                intervalSup += _matrix[_rowStates.FirstOrDefault(x => x.Value == state).Key, i];     
             }
-            return _states.FirstOrDefault(x => x.Key == i).Value;
+            return _colStates.FirstOrDefault(x => x.Key == i).Value;
         }
 
         /// <summary>
@@ -160,15 +217,17 @@ namespace MarkovModelTools
         /// <returns>retourne la valeur de l'état généré</returns>
         public string NextState(int key)
         {
+            if (!_rowStates.ContainsKey(key))
+                throw new ArgumentOutOfRangeException();
             int i = 0;
-            double number = RAND.NextDouble();
+            double number = RANDOM.NextDouble();
             double intervalSup = _matrix[key, i];
             while (intervalSup <= number)
             {
                 i++;
                 intervalSup += _matrix[key, i];
             }
-            return _states.FirstOrDefault(x => x.Key == i).Value;
+            return _colStates.FirstOrDefault(x => x.Key == i).Value;
         }
 
 
@@ -182,7 +241,7 @@ namespace MarkovModelTools
         /// <returns>retuourne une matrice de taille (row, col)</returns>
         public static double[,] EmptyMatrix(uint row, uint col)
         {
-            int colSelect = RAND.Next((int)col);
+            int colSelect = RANDOM.Next((int)col);
             double[,] matrix = new double[row, col];
             if (row * col != 0)
             {
@@ -241,7 +300,7 @@ namespace MarkovModelTools
                 {
                     result += (double)matrix[i, j];
                 }
-                if (result != 1.0d)
+                if (result != 1)
                     return false;
             }
             return true;
